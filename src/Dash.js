@@ -12,6 +12,9 @@ import Button from '@material-ui/core/Button';
 
 import TextField from '@material-ui/core/TextField';
 
+import {CTX} from './Store';
+
+
 const useStyles = makeStyles(theme => ({
     root: {
         margin: '50px',
@@ -51,6 +54,14 @@ const useStyles = makeStyles(theme => ({
 export default function Dash() {
 
     const classes = useStyles();
+
+    // CTX store
+    
+    const [allChats, sendChatAction, user] = React.useContext(CTX);
+
+    const topics = Object.keys(allChats);
+
+    const [activeTopic, changeActiveTopic] = React.useState(topics[0])
     const [textValue, changeTextValue] = React.useState('');
 
   return (
@@ -60,7 +71,7 @@ export default function Dash() {
           Chat App.
         </Typography>
         <Typography variant="h6" component="p">
-          Placeholder.
+          {activeTopic}
         </Typography>
         <div className={classes.flex}>
         
@@ -68,8 +79,8 @@ export default function Dash() {
             <div className={classes.topicsWindow}>
                 <List>
                     {
-                        ['hey','hello','nice'].map(topic => (
-                            <ListItem key={topic} button>
+                        topics.map(topic => (
+                            <ListItem onClick={e => changeActiveTopic(e.target.innerText) } key={topic} button>
                             <ListItemText primary={topic} />
                             </ListItem>
                         ))
@@ -83,7 +94,7 @@ export default function Dash() {
             <div className={classes.chatWindow}>
 
                     {
-                        [{from: 'user', msg: 'hello'}].map((chat,i) => (
+                        allChats[activeTopic].map((chat,i) => (
                             <div className={classes.flex} key={i}>
                                 <Chip label={chat.from} className={classes.chip} />
                                 <Typography variant='p'>{chat.msg}</Typography>
@@ -104,8 +115,21 @@ export default function Dash() {
             onChange={e => changeTextValue(e.target.value)}
             
             />
-            <Button variant="contained" color="primary" className={classes.button}>
+            <Button 
+                variant="contained" 
+                color="primary" 
+                className={classes.button}
+                onClick={() => {
+                    sendChatAction({from: user, msg: textValue, topic: activeTopic});
+                    changeTextValue('')
+                }
+                }
+            >
+
+
             Send
+
+
             </Button>
         </div>
 
